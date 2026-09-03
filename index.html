@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Veckokassen – prototyp</title>
+<style>
+:root{
+  --bg:#f8f3ea; --card:#fffdf8; --ink:#21352f; --muted:#6f7f78;
+  --green:#477564; --green2:#dce9df; --pink:#f0c9cb; --peach:#f2d5bd;
+  --line:#e7e1d7; --shadow:0 12px 30px rgba(54,72,65,.10);
+}
+*{box-sizing:border-box} body{margin:0;background:linear-gradient(180deg,#f7efe5,#fbf8f1);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink)}
+.app{max-width:520px;margin:0 auto;min-height:100vh;padding:18px 16px 40px}
+.top{display:flex;align-items:center;justify-content:space-between;margin:8px 4px 18px}
+.brand{font-family:Georgia,serif;font-size:29px;font-weight:800;letter-spacing:-.5px}
+.badge{font-size:12px;background:var(--green2);padding:7px 10px;border-radius:999px;color:var(--green)}
+.card{background:rgba(255,253,248,.94);border:1px solid var(--line);border-radius:24px;padding:18px;box-shadow:var(--shadow);margin-bottom:14px}
+h1{font-family:Georgia,serif;font-size:30px;line-height:1.05;margin:2px 0 8px}
+h2{font-family:Georgia,serif;font-size:22px;margin:0 0 12px}
+p{line-height:1.45}.sub{color:var(--muted);margin-top:0}
+label{display:block;font-size:13px;font-weight:700;margin:14px 0 6px}
+input,select{width:100%;border:1px solid #d9d8d0;border-radius:14px;padding:13px 14px;background:#fff;font-size:16px;color:var(--ink)}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{border:1px solid #d7ddd7;background:#fff;border-radius:999px;padding:10px 12px;font-size:14px;cursor:pointer;user-select:none}
+.chip.on{background:var(--green);color:#fff;border-color:var(--green)}
+button{width:100%;border:0;border-radius:16px;padding:14px 16px;background:var(--green);color:white;font-weight:800;font-size:16px;cursor:pointer}
+button.secondary{background:#fff;color:var(--green);border:1px solid var(--green);margin-top:10px}
+button:disabled{opacity:.55;cursor:wait}
+.store{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--line)}
+.store:last-child{border-bottom:0}.store input{width:auto}.store small{color:var(--muted);display:block}
+.hidden{display:none}.status{padding:11px 13px;border-radius:14px;background:#f1eadf;font-size:13px;margin-top:12px}
+.good{background:#e5efe8}.warn{background:#f6e8d8}
+.menuitem{padding:14px 0;border-bottom:1px solid var(--line)}.menuitem:last-child{border:0}
+.menuitem b{font-size:16px}.menuitem small{display:block;color:var(--muted);margin-top:4px}
+.pricebox{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+.price{background:var(--green2);border-radius:18px;padding:14px}.price strong{font-size:24px;display:block}
+.price.alt{background:#f7dfcf}
+.list{list-style:none;padding:0;margin:0}.list li{display:flex;gap:10px;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--line)}
+.list li:last-child{border:0}.left{min-width:0}.left small{display:block;color:var(--muted)}
+.tag{display:inline-block;font-size:11px;padding:4px 7px;border-radius:999px;background:var(--pink);margin-left:5px}
+.foot{font-size:11px;color:var(--muted);text-align:center;margin-top:18px}.foot a{color:inherit}
+.loader{height:8px;background:#eee6da;border-radius:99px;overflow:hidden;margin-top:12px}.loader>div{height:100%;width:0;background:var(--green);transition:width .3s}
+.hero{padding:20px 18px;background:linear-gradient(135deg,#fff8ef,#f2eadc)}
+.emoji{font-size:42px;float:right;margin-left:10px}
+details{margin-top:8px}summary{cursor:pointer;font-weight:700}
+.kicker{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--green);font-weight:800}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top"><div class="brand">Veckokassen</div><div class="badge">PROTOTYP</div></div>
+
+  <section id="setup">
+    <div class="card hero">
+      <div class="emoji">🛒</div>
+      <div class="kicker">Billigare middagar</div>
+      <h1>Planera veckan efter butikernas priser</h1>
+      <p class="sub">Välj ort, familj, budget och antal middagar. Prototypen försöker hämta riktiga prisuppgifter från Primats demo-API.</p>
+    </div>
+
+    <div class="card">
+      <h2>1. Din familj</h2>
+      <div class="row">
+        <div><label>Vuxna</label><select id="adults"><option>1</option><option selected>2</option><option>3</option><option>4</option></select></div>
+        <div><label>Barn</label><select id="kids"><option>0</option><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option></select></div>
+      </div>
+      <label>Antal middagar</label>
+      <select id="days"><option>3</option><option selected>5</option><option>7</option></select>
+      <label>Maxbudget för middagarna</label>
+      <input id="budget" type="number" value="800" min="200" step="50">
+    </div>
+
+    <div class="card">
+      <h2>2. Var handlar du?</h2>
+      <label>Ort eller postnummer</label>
+      <input id="place" value="Uppsala" placeholder="t.ex. Uppsala eller 761 30">
+      <button id="findStores" class="secondary">Hitta butiker nära mig</button>
+      <div id="storeStatus" class="status hidden"></div>
+      <div id="stores"></div>
+    </div>
+
+    <div class="card">
+      <h2>3. Vad passar er?</h2>
+      <div class="chips" id="prefs">
+        <span class="chip on" data-p="barnvänligt">👨‍👩‍👧 Barnvänligt</span>
+        <span class="chip on" data-p="snabbt">⏱ Snabblagat</span>
+        <span class="chip" data-p="vegetariskt">🥕 Mer vegetariskt</span>
+        <span class="chip" data-p="protein">💪 Proteinrikt</span>
+      </div>
+    </div>
+
+    <button id="generate">✨ Skapa min veckomeny</button>
+    <div id="progressWrap" class="hidden">
+      <div id="progressText" class="status">Förbereder…</div>
+      <div class="loader"><div id="progress"></div></div>
+    </div>
+  </section>
+
+  <section id="result" class="hidden">
+    <div class="card hero">
+      <div class="kicker">Veckans meny</div>
+      <h1 id="headline">5 middagar</h1>
+      <p class="sub" id="resultSub"></p>
+      <div class="pricebox">
+        <div class="price"><small>Beräknat att köpa</small><strong id="total">–</strong></div>
+        <div class="price alt"><small>Mot budget</small><strong id="budgetDiff">–</strong></div>
+      </div>
+      <div id="dataMode" class="status good"></div>
+    </div>
+
+    <div class="card">
+      <h2>🍽️ Meny</h2>
+      <div id="menu"></div>
+    </div>
+
+    <div class="card">
+      <h2>🧺 Inköpslista</h2>
+      <ul class="list" id="shopping"></ul>
+      <p class="sub" style="font-size:12px;margin-top:12px">Priser är uppskattningar för prototypen. Mängder och paketstorlekar behöver förfinas innan en skarp lansering.</p>
+    </div>
+
+    <button id="again" class="secondary">← Ändra val</button>
+  </section>
+
+  <div class="foot">Prisdata från <a href="https://primat.nu" target="_blank" rel="noopener">primat.nu</a> när live-läget fungerar. Reservdata används annars.</div>
+</div>
+
+<script>
+const API='https://primat.nu/api/v3/demo';
+const $=id=>document.getElementById(id);
+let resolvedStores=[], liveMode=false;
+
+const fallbackStores=[
+ {chain:'willys',store_id:'demo-w',key:'willys:demo-w',name:'Willys Nära',city:'Din ort',km:1.2,selected:true},
+ {chain:'ica',store_id:'demo-i',key:'ica:demo-i',name:'ICA Supermarket',city:'Din ort',km:2.1,selected:true},
+ {chain:'coop',store_id:'demo-c',key:'coop:demo-c',name:'Coop',city:'Din ort',km:2.8,selected:true},
+ {chain:'lidl',store_id:'demo-l',key:'lidl:demo-l',name:'Lidl',city:'Din ort',km:3.3,selected:false}
+];
+
+const recipes=[
+ {name:'Krämig kycklingpasta',emoji:'🍗',time:25,tags:['barnvänligt','snabbt','protein'], ingredients:[['kyckling','kycklingfilé',180],['pasta','pasta',90],['crème fraîche','crème fraîche',45],['broccoli','broccoli',80]]},
+ {name:'Köttfärssås med spaghetti',emoji:'🍝',time:30,tags:['barnvänligt','protein'], ingredients:[['nötfärs','nötfärs',160],['pasta','spaghetti',90],['krossade tomater','krossade tomater',100],['morot','morötter',60]]},
+ {name:'Ugnslax med potatis',emoji:'🐟',time:35,tags:['protein'], ingredients:[['lax','laxfilé',170],['potatis','potatis',220],['crème fraîche','crème fraîche',35],['broccoli','broccoli',80]]},
+ {name:'Kycklingtacos',emoji:'🌮',time:25,tags:['barnvänligt','snabbt','protein'], ingredients:[['kyckling','kycklingfilé',160],['tortilla','tortillabröd',3],['paprika','paprika',60],['majs','majs',50]]},
+ {name:'Korvstroganoff med ris',emoji:'🥘',time:25,tags:['barnvänligt','snabbt'], ingredients:[['falukorv','falukorv',170],['ris','ris',80],['grädde','matlagningsgrädde',45],['lök','gul lök',35]]},
+ {name:'Tacogratäng',emoji:'🧀',time:35,tags:['barnvänligt','protein'], ingredients:[['nötfärs','nötfärs',160],['tortilla','tortillabröd',2],['ost','riven ost',45],['majs','majs',50]]},
+ {name:'Pannkakor med bär',emoji:'🥞',time:25,tags:['barnvänligt','snabbt'], ingredients:[['mjölk','mjölk',180],['ägg','ägg',0.8],['mjöl','vetemjöl',70],['bär','frysta bär',70]]},
+ {name:'Vegetarisk tomatpasta',emoji:'🍅',time:20,tags:['barnvänligt','snabbt','vegetariskt'], ingredients:[['pasta','pasta',100],['krossade tomater','krossade tomater',120],['linser','röda linser',60],['ost','riven ost',30]]},
+ {name:'Linsgryta med ris',emoji:'🥕',time:30,tags:['vegetariskt','protein'], ingredients:[['linser','röda linser',75],['ris','ris',80],['krossade tomater','krossade tomater',100],['morot','morötter',70]]},
+ {name:'Ugnskorv med potatis',emoji:'🥔',time:40,tags:['barnvänligt'], ingredients:[['falukorv','falukorv',180],['potatis','potatis',220],['ost','riven ost',35],['morot','morötter',70]]}
+];
+
+const fallbackPrices={
+ 'kyckling':{name:'Kycklingfilé',price:74.90,unit:'kg',chain:'willys'},
+ 'pasta':{name:'Pasta',price:14.90,unit:'500 g',chain:'ica'},
+ 'crème fraîche':{name:'Crème fraîche',price:16.90,unit:'2 dl',chain:'coop'},
+ 'broccoli':{name:'Broccoli',price:19.90,unit:'250 g',chain:'lidl'},
+ 'nötfärs':{name:'Nötfärs',price:89.90,unit:'kg',chain:'willys'},
+ 'krossade tomater':{name:'Krossade tomater',price:10.90,unit:'400 g',chain:'ica'},
+ 'morot':{name:'Morötter',price:19.90,unit:'kg',chain:'coop'},
+ 'lax':{name:'Laxfilé',price:119.00,unit:'500 g',chain:'willys'},
+ 'potatis':{name:'Potatis',price:24.90,unit:'2 kg',chain:'ica'},
+ 'tortilla':{name:'Tortillabröd',price:22.90,unit:'8-pack',chain:'lidl'},
+ 'paprika':{name:'Paprika',price:34.90,unit:'500 g',chain:'coop'},
+ 'majs':{name:'Majs',price:12.90,unit:'burk',chain:'ica'},
+ 'falukorv':{name:'Falukorv',price:29.90,unit:'800 g',chain:'willys'},
+ 'ris':{name:'Ris',price:32.90,unit:'1 kg',chain:'lidl'},
+ 'grädde':{name:'Matlagningsgrädde',price:18.90,unit:'5 dl',chain:'coop'},
+ 'lök':{name:'Gul lök',price:19.90,unit:'kg',chain:'ica'},
+ 'ost':{name:'Riven ost',price:29.90,unit:'200 g',chain:'willys'},
+ 'mjölk':{name:'Mjölk',price:17.90,unit:'1.5 l',chain:'coop'},
+ 'ägg':{name:'Ägg',price:34.90,unit:'12-pack',chain:'ica'},
+ 'mjöl':{name:'Vetemjöl',price:18.90,unit:'2 kg',chain:'willys'},
+ 'bär':{name:'Frysta bär',price:39.90,unit:'500 g',chain:'lidl'},
+ 'linser':{name:'Röda linser',price:24.90,unit:'500 g',chain:'coop'}
+};
+
+function chainName(c){return ({willys:'Willys',ica:'ICA',coop:'Coop',lidl:'Lidl',hemkop:'Hemköp',citygross:'City Gross'})[c]||c}
+function money(v){return Math.round(v).toLocaleString('sv-SE')+' kr'}
+function selectedStoreKeys(){return [...document.querySelectorAll('.storecheck:checked')].map(x=>x.value)}
+function renderStores(stores){
+  resolvedStores=stores;
+  $('stores').innerHTML=stores.slice(0,10).map((s,i)=>`
+    <label class="store">
+      <input class="storecheck" type="checkbox" value="${s.key||s.chain+':'+s.store_id}" ${s.selected!==false && i<6?'checked':''}>
+      <span><b>${chainName(s.chain)} – ${s.name}</b><small>${s.city||''}${s.km!=null?' · '+s.km.toFixed(1)+' km':''}</small></span>
+    </label>`).join('');
+}
+renderStores(fallbackStores);
+
+document.querySelectorAll('.chip').forEach(c=>c.onclick=()=>c.classList.toggle('on'));
+
+$('findStores').onclick=async()=>{
+  const place=$('place').value.trim();
+  if(!place)return;
+  $('findStores').disabled=true;
+  $('storeStatus').className='status'; $('storeStatus').textContent='Söker butiker…';
+  try{
+    const r=await fetch(`${API}/stores/resolve?place=${encodeURIComponent(place)}`);
+    if(!r.ok)throw new Error('API svarade '+r.status);
+    const data=await r.json();
+    if(!data.stores?.length)throw new Error('Inga butiker hittades');
+    renderStores(data.stores);
+    liveMode=true;
+    $('storeStatus').className='status good';
+    $('storeStatus').textContent=`Hittade ${data.stores.length} butiker kring ${data.place?.label||place}.`;
+  }catch(e){
+    liveMode=false; renderStores(fallbackStores);
+    $('storeStatus').className='status warn';
+    $('storeStatus').textContent='Live-sökningen gick inte från den här webbläsaren. Reservbutiker visas så att prototypen fortfarande går att prova.';
+  }finally{$('findStores').disabled=false}
+};
+
+function packageCost(key, grams, persons, p){
+  // Rough MVP packaging rules.
+  const need=grams*persons;
+  const packMap={
+   kyckling:1000,pasta:500,'crème fraîche':200,broccoli:250,'nötfärs':1000,
+   'krossade tomater':400,morot:1000,lax:500,potatis:2000,tortilla:8,paprika:500,
+   majs:300,falukorv:800,ris:1000,grädde:500,lök:1000,ost:200,mjölk:1500,ägg:12,mjöl:2000,bär:500,linser:500
+  };
+  let qty=1;
+  if(key==='tortilla') qty=Math.ceil(need/(packMap[key]||8));
+  else if(key==='ägg') qty=Math.ceil(need/(packMap[key]||12));
+  else qty=Math.ceil(need/(packMap[key]||500));
+  return {qty:Math.max(1,qty), cost:Math.max(1,qty)*p.price};
+}
+
+async function getPrice(key,query,stores){
+  if(!liveMode) return fallbackPrices[key];
+  try{
+    const url=`${API}/products?q=${encodeURIComponent(query)}&stores=${encodeURIComponent(stores.join(','))}`;
+    const r=await fetch(url);
+    if(!r.ok)throw new Error();
+    const d=await r.json();
+    const rows=(d.data||[]).filter(x=>x.available!==false && x.prices);
+    if(!rows.length)throw new Error();
+    const scored=rows.map(x=>{
+      // Use public price by default. Member prices shown but not used automatically.
+      const publicPrice=x.prices.regular ?? x.prices.offer?.price ?? x.prices.effective;
+      return {...x, publicPrice};
+    }).filter(x=>Number.isFinite(x.publicPrice) && x.publicPrice>0).sort((a,b)=>a.publicPrice-b.publicPrice);
+    if(!scored.length)throw new Error();
+    const x=scored[0];
+    return {name:x.name,price:x.publicPrice,unit:x.package||x.unit||'',chain:x.chain,member:x.prices.member,offer:x.prices.offer?.label||null};
+  }catch(e){return fallbackPrices[key]}
+}
+
+function chooseRecipes(days,prefs){
+  let arr=[...recipes];
+  arr.sort((a,b)=>{
+    const sa=a.tags.filter(t=>prefs.includes(t)).length, sb=b.tags.filter(t=>prefs.includes(t)).length;
+    return sb-sa || a.time-b.time;
+  });
+  if(prefs.includes('vegetariskt')){
+    const veg=arr.filter(r=>r.tags.includes('vegetariskt'));
+    const non=arr.filter(r=>!r.tags.includes('vegetariskt'));
+    arr=[...veg,...non];
+  }
+  return arr.slice(0,days);
+}
+
+$('generate').onclick=async()=>{
+  const stores=selectedStoreKeys();
+  if(!stores.length){alert('Välj minst en butik.');return}
+  const prefs=[...document.querySelectorAll('.chip.on')].map(x=>x.dataset.p);
+  const days=+$('days').value, adults=+$('adults').value, kids=+$('kids').value;
+  const persons=adults+kids*0.65; // simple MVP portion factor
+  const budget=+$('budget').value;
+  const chosen=chooseRecipes(days,prefs);
+  const unique={};
+  chosen.forEach(r=>r.ingredients.forEach(i=>unique[i[0]]=i[1]));
+  const keys=Object.keys(unique);
+
+  $('generate').disabled=true; $('progressWrap').classList.remove('hidden');
+  const priceData={};
+  for(let i=0;i<keys.length;i++){
+    $('progressText').textContent=`Hämtar pris ${i+1} av ${keys.length}: ${unique[keys[i]]}…`;
+    $('progress').style.width=((i/keys.length)*100)+'%';
+    priceData[keys[i]]=await getPrice(keys[i],unique[keys[i]],stores);
+  }
+  $('progress').style.width='100%';
+
+  const shopping={};
+  chosen.forEach(r=>r.ingredients.forEach(([key,q,g])=>{
+    shopping[key]=shopping[key]||{grams:0,query:q};
+    shopping[key].grams+=g;
+  }));
+
+  let total=0;
+  const rows=[];
+  Object.entries(shopping).forEach(([key,v])=>{
+    const p=priceData[key]||fallbackPrices[key];
+    const pc=packageCost(key,v.grams,persons,p);
+    total+=pc.cost;
+    rows.push({...p,key,qty:pc.qty,cost:pc.cost});
+  });
+  rows.sort((a,b)=>b.cost-a.cost);
+
+  $('headline').textContent=`${days} middagar för ${adults} vuxna + ${kids} barn`;
+  $('resultSub').textContent=`Planerad för cirka ${persons.toFixed(1).replace('.',',')} vuxenportioner per middag.`;
+  $('total').textContent=money(total);
+  const diff=budget-total;
+  $('budgetDiff').textContent=(diff>=0?'+'+money(diff):'−'+money(Math.abs(diff)));
+  $('dataMode').className='status '+(liveMode?'good':'warn');
+  $('dataMode').textContent=liveMode
+   ? 'Live-läge: prototypen har försökt använda riktiga butikspriser. Medlemspris räknas inte automatiskt.'
+   : 'Reservläge: demonstrativa testpriser används. När live-API fungerar hämtas riktiga butikspriser.';
+
+  $('menu').innerHTML=chosen.map((r,i)=>{
+    const est=r.ingredients.reduce((s,[key,q,g])=>{
+      const p=priceData[key]||fallbackPrices[key];
+      return s + packageCost(key,g,persons,p).cost*.55;
+    },0);
+    return `<div class="menuitem"><b>${r.emoji} ${['Måndag','Tisdag','Onsdag','Torsdag','Fredag','Lördag','Söndag'][i]} – ${r.name}</b><small>ca ${r.time} min · uppskattad råvaruandel ${money(est)}</small></div>`;
+  }).join('');
+
+  $('shopping').innerHTML=rows.map(x=>`<li>
+    <span class="left"><b>${x.name}</b>${x.member?'<span class="tag">medlemspris finns</span>':''}<small>${chainName(x.chain)} · ca ${x.unit||'förpackning'}</small></span>
+    <span style="text-align:right"><b>${money(x.cost)}</b><small>${x.qty} st</small></span>
+  </li>`).join('');
+
+  $('setup').classList.add('hidden'); $('result').classList.remove('hidden');
+  window.scrollTo({top:0,behavior:'smooth'});
+  $('generate').disabled=false; $('progressWrap').classList.add('hidden');
+};
+
+$('again').onclick=()=>{
+ $('result').classList.add('hidden');$('setup').classList.remove('hidden');window.scrollTo({top:0,behavior:'smooth'});
+};
+</script>
+</body>
+</html>
