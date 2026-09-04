@@ -75,7 +75,11 @@ details{margin-top:8px}summary{cursor:pointer;font-weight:700}
     <div class="card">
       <h2>2. Var handlar du?</h2>
       <label>Ort eller postnummer</label>
-      <input id="place" value="Uppsala" placeholder="t.ex. Uppsala eller 761 30">
+      <div style="display:flex;gap:8px;align-items:center">
+  <input id="place" value="Uppsala" placeholder="t.ex. Uppsala eller 761 30">
+  <button id="useLocation" type="button" title="Använd min plats" aria-label="Använd min plats"
+    style="width:48px;min-width:48px;height:48px;padding:0;border-radius:14px;font-size:22px">➤</button>
+</div>
       <button id="findStores" class="secondary">Hitta butiker nära mig</button>
       <div id="storeStatus" class="status hidden"></div>
       <div id="stores"></div>
@@ -196,7 +200,48 @@ function renderStores(stores){
 renderStores(fallbackStores);
 
 document.querySelectorAll('.chip').forEach(c=>c.onclick=()=>c.classList.toggle('on'));
+$('useLocation').onclick=()=>{
+  if(!navigator.geolocation){
+    alert('Din webbläsare stöder inte platsdelning.');
+    return;
+  }
 
+  $('useLocation').disabled=true;
+  $('storeStatus').className='status';
+  $('storeStatus').textContent='Hämtar din plats…';
+
+  navigator.geolocation.getCurrentPosition(async position=>{
+    const lat=position.coords.latitude;
+    const lon=position.coords.longitude;
+
+    try{
+      const r=await fetch(
+        `${API}/stores/resolve?lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}`
+      );
+
+      if(!r.ok)throw new Error();
+
+      const data=await r.json();
+
+      if(!data.stores?.length)throw new Error();
+
+      renderStores(data.stores);
+      liveMode=true;
+
+      $('storeStatus').className='status good';
+      $('storeStatus').textContent=`Hittade ${data.stores.length} butiker nära dig.`;
+    }catch(e){
+      $('storeStatus').className='status warn';
+      $('storeStatus').textContent='Kunde inte hitta butiker nära din plats just nu.';
+    }finally{
+      $('useLocation').disabled=false;
+    }
+  },()=>{
+    $('useLocation').disabled=false;
+    $('storeStatus').className='status warn';
+    $('storeStatus').textContent='Tillåt platsåtkomst för att hitta butiker nära dig.';
+  });
+};
 $('findStores').onclick=async()=>{
   const place=$('place').value.trim();
   if(!place)return;
