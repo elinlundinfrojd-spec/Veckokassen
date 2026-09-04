@@ -1,4 +1,4 @@
-<!doctype html>
+om<!doctype html>
 <html lang="sv">
 <head>
 <meta charset="utf-8">
@@ -75,9 +75,19 @@ details{margin-top:8px}summary{cursor:pointer;font-weight:700}
     <div class="card">
       <h2>2. Var handlar du?</h2>
       <label>Ort eller postnummer</label>
-      <div style="display:flex;gap:8px;align-items:center">
-  <input id="place" value="Uppsala" placeholder="t.ex. Uppsala eller 761 30">
-  <button id="useLocation" type="button" title="Använd min plats" aria-label="Använd min plats"
+
+<div style="display:flex;gap:8px;align-items:center">
+  <input id="place" value="" placeholder="t.ex. Norrtälje eller 761 30">
+
+  <button id="findStores" type="button"
+    style="width:auto;min-width:72px;height:48px;padding:0 16px;border-radius:14px">
+    Sök
+  </button>
+</div>
+
+<button id="useLocation" type="button" class="secondary">
+  📍 Använd min nuvarande plats
+</button>
     style="width:48px;min-width:48px;height:48px;padding:0;border-radius:14px;font-size:22px">➤</button>
 </div>
       <button id="findStores" class="secondary">Hitta butiker nära mig</button>
@@ -213,7 +223,7 @@ $('useLocation').onclick=()=>{
   navigator.geolocation.getCurrentPosition(async position=>{
     const lat=position.coords.latitude;
     const lon=position.coords.longitude;
-
+$('place').value='📍 Min nuvarande plats';
     try{
       const r=await fetch(
         `${API}/stores/resolve?lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}`
