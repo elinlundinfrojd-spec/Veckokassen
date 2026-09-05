@@ -326,8 +326,7 @@ async function getPrice(key,query,stores){
       // Use public price by default. Member prices shown but not used automatically.
       const publicPrice=x.prices.regular ?? x.prices.offer?.price ?? x.prices.effective;
       return {
-  name:x.name,
-  price:x.publicPrice,
+  return {...x, publicPrice};
   unit:x.package||x.unit||'',
   chain:x.chain,
   storeId:x.store_id || x.store?.id || '',
@@ -337,7 +336,18 @@ async function getPrice(key,query,stores){
     }).filter(x=>Number.isFinite(x.publicPrice) && x.publicPrice>0).sort((a,b)=>a.publicPrice-b.publicPrice);
     if(!scored.length)throw new Error();
     const x=scored[0];
-    return {name:x.name,price:x.publicPrice,unit:x.package||x.unit||'',chain:x.chain,member:x.prices.member,offer:x.prices.offer?.label||null};
+    const storeMatch=resolvedStores.find(s=>
+  String(s.store_id||s.id||'')===String(x.store_id||x.store?.id||'')
+);
+    return {
+  name:x.name,
+  price:x.publicPrice,
+  unit:x.package||x.unit||'',
+  chain:x.chain,
+  store:storeMatch?.name||'',
+  member:x.prices.member,
+  offer:x.prices.offer?.label||null
+};
   }catch(e){return fallbackPrices[key]}
 }
 
