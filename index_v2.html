@@ -199,7 +199,7 @@ function money(v){return Math.round(v).toLocaleString('sv-SE')+' kr'}
 function selectedStoreKeys(){return [...document.querySelectorAll('.storecheck:checked')].map(x=>x.value)}
 function renderStores(stores){
   resolvedStores=stores;
-  [...stores].sort((a,b)=>(a.distance_km ?? 9999)-(b.distance_km ?? 9999)).slice(0,10)
+  [...stores].sort((a,b)=>(a.km ?? a.distance_km ?? 9999)-(b.km ?? b.distance_km ?? 9999)).slice(0,10)
     <label class="store">
       <input class="storecheck" type="checkbox" value="${s.key||s.chain+':'+s.store_id}" ${s.selected!==false && i<6?'checked':''}>
       <span><b>${chainName(s.chain)} – ${s.name}</b><small>${s.city||''}${s.km!=null?' · '+s.km.toFixed(1)+' km':''}</small></span>
