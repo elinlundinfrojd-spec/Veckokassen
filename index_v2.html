@@ -330,7 +330,7 @@ async function getPrice(key,query,stores){
   price:x.publicPrice,
   unit:x.package||x.unit||'',
   chain:x.chain,
-  store:x.store?.name || x.store_name || x.store || '',
+  storeId:x.store_id || x.store?.id || '',
   member:x.prices.member,
   offer:x.prices.offer?.label||null
 };
