@@ -197,13 +197,40 @@ const fallbackPrices={
 function chainName(c){return ({willys:'Willys',ica:'ICA',coop:'Coop',lidl:'Lidl',hemkop:'Hemköp',citygross:'City Gross'})[c]||c}
 function money(v){return Math.round(v).toLocaleString('sv-SE')+' kr'}
 function selectedStoreKeys(){return [...document.querySelectorAll('.storecheck:checked')].map(x=>x.value)}
-function renderStores(stores){
-  resolvedStores=stores;
-  [...stores].sort((a,b)=>(a.km ?? a.distance_km ?? 9999)-(b.km ?? b.distance_km ?? 9999)).slice(0,10)
-    <label class="store">
-      <input class="storecheck" type="checkbox" value="${s.key||s.chain+':'+s.store_id}" ${s.selected!==false && i<6?'checked':''}>
-      <span><b>${chainName(s.chain)} – ${s.name}</b><small>${s.city||''}${s.km!=null?' · '+s.km.toFixed(1)+' km':''}</small></span>
-    </label>`).join('');
+function renderStores(stores, showAll=false){
+  const sorted=[...stores].sort((a,b)=>
+    (a.km ?? a.distance_km ?? 9999)-
+    (b.km ?? b.distance_km ?? 9999)
+  );
+
+  resolvedStores=sorted;
+
+  const visible=showAll ? sorted : sorted.slice(0,10);
+
+  $('stores').innerHTML=visible.map((s,i)=>{
+    const distance=s.km ?? s.distance_km;
+
+    return `
+      <label class="store">
+        <input class="storecheck" type="checkbox"
+          value="${s.key||s.chain+':'+s.store_id}"
+          ${s.selected!==false && i<6?'checked':''}>
+        <span>
+          <b>${chainName(s.chain)} – ${s.name}</b>
+          <small>${s.city||''}${distance!=null?' · '+distance.toFixed(1)+' km':''}</small>
+        </span>
+      </label>`;
+  }).join('');
+
+  if(!showAll && sorted.length>10){
+    $('stores').insertAdjacentHTML('beforeend',`
+      <button id="showAllStores" type="button" class="secondary">
+        Visa alla ${sorted.length} butiker ↓
+      </button>
+    `);
+
+    $('showAllStores').onclick=()=>renderStores(sorted,true);
+  }
 }
 renderStores(fallbackStores);
 
