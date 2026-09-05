@@ -460,7 +460,7 @@ $('generate').onclick=async()=>{
     }).join('');
 
     $('shopping').innerHTML=rows.map(x=>`<li>
-      <span class="left"><b>${x.name}</b>${x.offer?'<span class="tag">erbjudande</span>':''}${x.member?'<span class="tag">medlemspris finns</span>':''}<small>${chainName(x.chain)} · ca ${x.unit||'förpackning'}</small></span>
+      <span class="left"><b>${x.name}</b>${x.offer?'<span class="tag">erbjudande</span>':''}${x.member?'<span class="tag">medlemspris finns</span>':''}<small>${x.store ? x.store+' · ' : chainName(x.chain)+' · '}ca ${x.unit||'förpackning'}</small></span>
       <span style="text-align:right"><b>${money(x.cost)}</b><small>${x.qty} st</small></span>
     </li>`).join('');
 
