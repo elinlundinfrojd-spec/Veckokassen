@@ -324,7 +324,7 @@ async function getPrice(key,query,stores){
     if(!rows.length)throw new Error();
     const scored=rows.map(x=>{
       // Use public price by default. Member prices shown but not used automatically.
-      const publicPrice=x.prices.regular ?? x.prices.offer?.price ?? x.prices.effective;
+      const publicPrice=x.prices.effective ?? x.prices.offer?.price ?? x.prices.regular;
       return {...x, publicPrice};
     }).filter(x=>Number.isFinite(x.publicPrice) && x.publicPrice>0).sort((a,b)=>a.publicPrice-b.publicPrice);
     if(!scored.length)throw new Error();
