@@ -310,6 +310,26 @@ function liveIngredientCost(grams, persons, p){
 
   return null;
 }
+  function getActualPackSize(p){
+  const text=String(p.unit||'').toLowerCase().replace(',', '.');
+
+  const g=text.match(/([\d.]+)\s*g\b/);
+  if(g) return Number(g[1]);
+
+  const kg=text.match(/([\d.]+)\s*kg\b/);
+  if(kg) return Number(kg[1])*1000;
+
+  const ml=text.match(/([\d.]+)\s*ml\b/);
+  if(ml) return Number(ml[1]);
+
+  const l=text.match(/([\d.]+)\s*l\b/);
+  if(l) return Number(l[1])*1000;
+
+  const pack=text.match(/(\d+)\s*[- ]?pack/);
+  if(pack) return Number(pack[1]);
+
+  return null;
+}
 function packageCost(key, grams, persons, p){
   // Rough MVP packaging rules.
   const need=grams*persons;
