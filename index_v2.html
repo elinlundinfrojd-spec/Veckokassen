@@ -297,7 +297,19 @@ $('findStores').onclick=async()=>{
     $('storeStatus').textContent='Live-sökningen gick inte från den här webbläsaren. Reservbutiker visas så att prototypen fortfarande går att prova.';
   }finally{$('findStores').disabled=false}
 };
+function liveIngredientCost(grams, persons, p){
+  const needKg=(grams*persons)/1000;
 
+  if(
+    Number.isFinite(p.comparisonPrice) &&
+    p.comparisonPrice>0 &&
+    String(p.comparisonUnit||'').toLowerCase().includes('kg')
+  ){
+    return needKg*p.comparisonPrice;
+  }
+
+  return null;
+}
 function packageCost(key, grams, persons, p){
   // Rough MVP packaging rules.
   const need=grams*persons;
