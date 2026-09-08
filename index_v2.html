@@ -333,6 +333,7 @@ function liveIngredientCost(grams, persons, p){
 function packageCost(key, grams, persons, p){
   // Rough MVP packaging rules.
   const need=grams*persons;
+  const actualPackSize=getActualPackSize(p);
   const packMap={
    kyckling:1000,pasta:500,'crème fraîche':200,broccoli:250,'nötfärs':1000,
    'krossade tomater':400,morot:1000,lax:500,potatis:2000,tortilla:8,paprika:500,
@@ -341,7 +342,7 @@ function packageCost(key, grams, persons, p){
   let qty=1;
   if(key==='tortilla') qty=Math.ceil(need/(packMap[key]||8));
   else if(key==='ägg') qty=Math.ceil(need/(packMap[key]||12));
-  else qty=Math.ceil(need/(packMap[key]||500));
+  else qty=Math.ceil(need/(actualPackSize||packMap[key]||500));
   return {qty:Math.max(1,qty), cost:Math.max(1,qty)*p.price};
 }
 
