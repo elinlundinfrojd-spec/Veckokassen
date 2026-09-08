@@ -374,7 +374,8 @@ function basketCost(chosen,persons,priceData){
   let total=0;
   Object.entries(shopping).forEach(([key,v])=>{
     const p=priceData[key]||fallbackPrices[key];
-    total+=packageCost(key,v.grams,persons,p).cost;
+    const liveCost=liveIngredientCost(v.grams,persons,p);
+total+=liveCost ?? packageCost(key,v.grams,persons,p).cost;
   });
   return total;
 }
