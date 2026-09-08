@@ -336,10 +336,15 @@ async function getPrice(key,query,stores){
   name:x.name,
   price:x.publicPrice,
   unit:x.package||x.unit||'',
+  amount:x.amount,
+  rawUnit:x.unit,
+  comparisonPrice:x.prices.comparison?.price ?? null,
+  comparisonUnit:x.prices.comparison?.unit ?? null,
   chain:x.chain,
   store:storeMatch?.name||'',
   member:x.prices.member,
   offer:x.prices.offer?.label||null
+};
 };
   }catch(e){return fallbackPrices[key]}
 }
